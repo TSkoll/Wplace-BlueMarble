@@ -4,14 +4,13 @@
  * @since 0.43.2
  */
 export default class Observers {
-
   /** The constructor for the observer class
    * @since 0.43.2
    */
   constructor() {
     this.observerBody = null;
     this.observerBodyTarget = null;
-    this.targetDisplayCoords = '#bm-display-coords';
+    this.targetDisplayCoords = "#bm-display-coords";
   }
 
   /** Creates the MutationObserver for document.body
@@ -20,21 +19,20 @@ export default class Observers {
    * @since 0.43.2
    */
   createObserverBody(target) {
-
     this.observerBodyTarget = target;
 
     this.observerBody = new MutationObserver((mutations) => {
       for (const mutation of mutations) {
         for (const node of mutation.addedNodes) {
+          if (!(node instanceof HTMLElement)) {
+            continue;
+          } // Does not track non-HTMLElements
 
-          if (!(node instanceof HTMLElement)) {continue;} // Does not track non-HTMLElements
-          
           if (node.matches?.(this.targetDisplayCoords)) {
-
           }
         }
       }
-    })
+    });
 
     return this;
   }
@@ -53,10 +51,10 @@ export default class Observers {
    * @param {boolean} watchSubtree - (Optional) Should childList be watched? False by default
    * @since 0.43.2
    */
-  observe(observer, watchChildList=false, watchSubtree=false) {
+  observe(observer, watchChildList = false, watchSubtree = false) {
     observer.observe(this.observerBodyTarget, {
       childList: watchChildList,
-      subtree: watchSubtree
+      subtree: watchSubtree,
     });
   }
 }

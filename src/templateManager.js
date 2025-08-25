@@ -35,29 +35,28 @@ import { base64ToUint8, numberToEncoded } from "./utils";
  * }
  */
 export default class TemplateManager {
-
   /** The constructor for the {@link TemplateManager} class.
    * @since 0.55.8
    */
   constructor(name, version, overlay) {
-
     // Meta
     this.name = name; // Name of userscript
     this.version = version; // Version of userscript
     this.overlay = overlay; // The main instance of the Overlay class
-    this.templatesVersion = '1.0.0'; // Version of JSON schema
+    this.templatesVersion = "1.0.0"; // Version of JSON schema
     this.userID = null; // The ID of the current user
-    this.encodingBase = '!#$%&\'()*+,-./0123456789:;<=>?@ABCDEFGHIJKLMNOPQRSTUVWXYZ[]^_`abcdefghijklmnopqrstuvwxyz{|}~'; // Characters to use for encoding/decoding
+    this.encodingBase =
+      "!#$%&'()*+,-./0123456789:;<=>?@ABCDEFGHIJKLMNOPQRSTUVWXYZ[]^_`abcdefghijklmnopqrstuvwxyz{|}~"; // Characters to use for encoding/decoding
     this.tileSize = 1000; // The number of pixels in a tile. Assumes the tile is square
     this.drawMult = 3; // The enlarged size for each pixel. E.g. when "3", a 1x1 pixel becomes a 1x1 pixel inside a 3x3 area. MUST BE ODD
-    
+
     // Template
     this.canvasTemplate = null; // Our canvas
     this.canvasTemplateZoomed = null; // The template when zoomed out
-    this.canvasTemplateID = 'bm-canvas'; // Our canvas ID
-    this.canvasMainID = 'div#map canvas.maplibregl-canvas'; // The selector for the main canvas
+    this.canvasTemplateID = "bm-canvas"; // Our canvas ID
+    this.canvasMainID = "div#map canvas.maplibregl-canvas"; // The selector for the main canvas
     this.template = null; // The template image.
-    this.templateState = ''; // The state of the template ('blob', 'proccessing', 'template', etc.)
+    this.templateState = ""; // The state of the template ('blob', 'proccessing', 'template', etc.)
     this.templatesArray = []; // All Template instnaces currently loaded (Template)
     this.templatesJSON = null; // All templates currently loaded (JSON)
     this.templatesShouldBeDrawn = true; // Should ALL templates be drawn to the canvas?
@@ -71,35 +70,42 @@ export default class TemplateManager {
    * @since 0.58.3
    * @deprecated Not in use since 0.63.25
    */
-  /* @__PURE__ */getCanvas() {
-
+  /* @__PURE__ */ getCanvas() {
     // If the stored canvas is "fresh", return the stored canvas
-    if (document.body.contains(this.canvasTemplate)) {return this.canvasTemplate;}
+    if (document.body.contains(this.canvasTemplate)) {
+      return this.canvasTemplate;
+    }
     // Else, the stored canvas is "stale", get the canvas again
 
     // Attempt to find and destroy the "stale" canvas
-    document.getElementById(this.canvasTemplateID)?.remove(); 
+    document.getElementById(this.canvasTemplateID)?.remove();
 
     const canvasMain = document.querySelector(this.canvasMainID);
 
-    const canvasTemplateNew = document.createElement('canvas');
+    const canvasTemplateNew = document.createElement("canvas");
     canvasTemplateNew.id = this.canvasTemplateID;
-    canvasTemplateNew.className = 'maplibregl-canvas';
-    canvasTemplateNew.style.position = 'absolute';
-    canvasTemplateNew.style.top = '0';
-    canvasTemplateNew.style.left = '0';
-    canvasTemplateNew.style.height = `${canvasMain?.clientHeight * (window.devicePixelRatio || 1)}px`;
-    canvasTemplateNew.style.width = `${canvasMain?.clientWidth * (window.devicePixelRatio || 1)}px`;
-    canvasTemplateNew.height = canvasMain?.clientHeight * (window.devicePixelRatio || 1);
-    canvasTemplateNew.width = canvasMain?.clientWidth * (window.devicePixelRatio || 1);
-    canvasTemplateNew.style.zIndex = '8999';
-    canvasTemplateNew.style.pointerEvents = 'none';
+    canvasTemplateNew.className = "maplibregl-canvas";
+    canvasTemplateNew.style.position = "absolute";
+    canvasTemplateNew.style.top = "0";
+    canvasTemplateNew.style.left = "0";
+    canvasTemplateNew.style.height = `${
+      canvasMain?.clientHeight * (window.devicePixelRatio || 1)
+    }px`;
+    canvasTemplateNew.style.width = `${
+      canvasMain?.clientWidth * (window.devicePixelRatio || 1)
+    }px`;
+    canvasTemplateNew.height =
+      canvasMain?.clientHeight * (window.devicePixelRatio || 1);
+    canvasTemplateNew.width =
+      canvasMain?.clientWidth * (window.devicePixelRatio || 1);
+    canvasTemplateNew.style.zIndex = "8999";
+    canvasTemplateNew.style.pointerEvents = "none";
     canvasMain?.parentElement?.appendChild(canvasTemplateNew); // Append the newCanvas as a child of the parent of the main canvas
     this.canvasTemplate = canvasTemplateNew; // Store the new canvas
 
-    window.addEventListener('move', this.onMove);
-    window.addEventListener('zoom', this.onZoom);
-    window.addEventListener('resize', this.onResize);
+    window.addEventListener("move", this.onMove);
+    window.addEventListener("zoom", this.onZoom);
+    window.addEventListener("resize", this.onResize);
 
     return this.canvasTemplate; // Return the new canvas
   }
@@ -110,10 +116,10 @@ export default class TemplateManager {
    */
   async createJSON() {
     return {
-      "whoami": this.name.replace(' ', ''), // Name of userscript without spaces
-      "scriptVersion": this.version, // Version of userscript
-      "schemaVersion": this.templatesVersion, // Version of JSON schema
-      "templates": {} // The templates
+      whoami: this.name.replace(" ", ""), // Name of userscript without spaces
+      scriptVersion: this.version, // Version of userscript
+      schemaVersion: this.templatesVersion, // Version of JSON schema
+      templates: {}, // The templates
     };
   }
 
@@ -124,11 +130,15 @@ export default class TemplateManager {
    * @since 0.65.77
    */
   async createTemplate(blob, name, coords) {
-
     // Creates the JSON object if it does not already exist
-    if (!this.templatesJSON) {this.templatesJSON = await this.createJSON(); console.log(`Creating JSON...`);}
+    if (!this.templatesJSON) {
+      this.templatesJSON = await this.createJSON();
+      console.log(`Creating JSON...`);
+    }
 
-    this.overlay.handleDisplayStatus(`Creating template at ${coords.join(', ')}...`);
+    this.overlay.handleDisplayStatus(
+      `Creating template at ${coords.join(", ")}...`
+    );
 
     // Creates a new template instance
     const template = new Template({
@@ -136,10 +146,11 @@ export default class TemplateManager {
       sortID: 0, // Object.keys(this.templatesJSON.templates).length || 0, // Uncomment this to enable multiple templates (1/2)
       authorID: numberToEncoded(this.userID || 0, this.encodingBase),
       file: blob,
-      coords: coords
+      coords: coords,
     });
     //template.chunked = await template.createTemplateTiles(this.tileSize); // Chunks the tiles
-    const { templateTiles, templateTilesBuffers } = await template.createTemplateTiles(this.tileSize); // Chunks the tiles
+    const { templateTiles, templateTilesBuffers } =
+      await template.createTemplateTiles(this.tileSize); // Chunks the tiles
     template.chunked = templateTiles; // Stores the chunked tile bitmaps
 
     // Appends a child into the templates object
@@ -147,11 +158,11 @@ export default class TemplateManager {
     const storageKey = `${template.sortID} ${template.authorID}`;
     template.storageKey = storageKey;
     this.templatesJSON.templates[storageKey] = {
-      "name": template.displayName, // Display name of template
-      "coords": coords.join(', '), // The coords of the template
-      "enabled": true,
-      "tiles": templateTilesBuffers, // Stores the chunked tile buffers
-      "palette": template.colorPalette // Persist palette and enabled flags
+      name: template.displayName, // Display name of template
+      coords: coords.join(", "), // The coords of the template
+      enabled: true,
+      tiles: templateTilesBuffers, // Stores the chunked tile buffers
+      palette: template.colorPalette, // Persist palette and enabled flags
     };
 
     this.templatesArray = []; // Remove this to enable multiple templates (2/2)
@@ -160,16 +171,29 @@ export default class TemplateManager {
     // ==================== PIXEL COUNT DISPLAY SYSTEM ====================
     // Display pixel count statistics with internationalized number formatting
     // This provides immediate feedback to users about template complexity and size
-    const pixelCountFormatted = new Intl.NumberFormat().format(template.pixelCount);
-    this.overlay.handleDisplayStatus(`Template created at ${coords.join(', ')}! Total pixels: ${pixelCountFormatted}`);
+    const pixelCountFormatted = new Intl.NumberFormat().format(
+      template.pixelCount
+    );
+    this.overlay.handleDisplayStatus(
+      `Template created at ${coords.join(
+        ", "
+      )}! Total pixels: ${pixelCountFormatted}`
+    );
 
     // Ensure color filter UI is visible when a template is created
     try {
-      const colorUI = document.querySelector('#bm-contain-colorfilter');
-      if (colorUI) { colorUI.style.display = ''; }
+      const colorUI = document.querySelector("#bm-contain-colorfilter");
+      if (colorUI) {
+        colorUI.style.display = "";
+      }
       // Deferred palette list rendering; actual DOM is built in main via helper
-      window.postMessage({ source: 'blue-marble', bmEvent: 'bm-rebuild-color-list' }, '*');
-    } catch (_) { /* no-op */ }
+      window.postMessage(
+        { source: "blue-marble", bmEvent: "bm-rebuild-color-list" },
+        "*"
+      );
+    } catch (_) {
+      /* no-op */
+    }
 
     console.log(Object.keys(this.templatesJSON.templates).length);
     console.log(this.templatesJSON);
@@ -181,32 +205,28 @@ export default class TemplateManager {
 
   /** Generates a {@link Template} class instance from the JSON object template
    */
-  #loadTemplate() {
-
-  }
+  #loadTemplate() {}
 
   /** Stores the JSON object of the loaded templates into TamperMonkey (GreaseMonkey) storage.
    * @since 0.72.7
    */
   async #storeTemplates() {
-    GM.setValue('bmTemplates', JSON.stringify(this.templatesJSON));
+    GM.setValue("bmTemplates", JSON.stringify(this.templatesJSON));
   }
 
   /** Deletes a template from the JSON object.
    * Also delete's the corrosponding {@link Template} class instance
    */
-  deleteTemplate() {
-
-  }
+  deleteTemplate() {}
 
   /** Disables the template from view
    */
   async disableTemplate() {
-
     // Creates the JSON object if it does not already exist
-    if (!this.templatesJSON) {this.templatesJSON = await this.createJSON(); console.log(`Creating JSON...`);}
-
-
+    if (!this.templatesJSON) {
+      this.templatesJSON = await this.createJSON();
+      console.log(`Creating JSON...`);
+    }
   }
 
   /** Draws all templates on the specified tile.
@@ -216,14 +236,18 @@ export default class TemplateManager {
    * @since 0.65.77
    */
   async drawTemplateOnTile(tileBlob, tileCoords) {
-
     // Returns early if no templates should be drawn
-    if (!this.templatesShouldBeDrawn) {return tileBlob;}
+    if (!this.templatesShouldBeDrawn) {
+      return tileBlob;
+    }
 
     const drawSize = this.tileSize * this.drawMult; // Calculate draw multiplier for scaling
 
     // Format tile coordinates with proper padding for consistent lookup
-    tileCoords = tileCoords[0].toString().padStart(4, '0') + ',' + tileCoords[1].toString().padStart(4, '0');
+    tileCoords =
+      tileCoords[0].toString().padStart(4, "0") +
+      "," +
+      tileCoords[1].toString().padStart(4, "0");
 
     console.log(`Searching for templates in tile: "${tileCoords}"`);
 
@@ -231,46 +255,53 @@ export default class TemplateManager {
     console.log(templateArray);
 
     // Sorts the array of Template class instances. 0 = first = lowest draw priority
-    templateArray.sort((a, b) => {return a.sortID - b.sortID;});
+    templateArray.sort((a, b) => {
+      return a.sortID - b.sortID;
+    });
 
     console.log(templateArray);
 
     // Early exit if none of the active templates touch this tile
-    const anyTouches = templateArray.some(t => {
-      if (!t?.chunked) { return false; }
+    const anyTouches = templateArray.some((t) => {
+      if (!t?.chunked) {
+        return false;
+      }
       // Fast path via recorded tile prefixes if available
       if (t.tilePrefixes && t.tilePrefixes.size > 0) {
         return t.tilePrefixes.has(tileCoords);
       }
       // Fallback: scan chunked keys
-      return Object.keys(t.chunked).some(k => k.startsWith(tileCoords));
+      return Object.keys(t.chunked).some((k) => k.startsWith(tileCoords));
     });
-    if (!anyTouches) { return tileBlob; }
+    if (!anyTouches) {
+      return tileBlob;
+    }
 
     // Retrieves the relavent template tile blobs
     const templatesToDraw = templateArray
-      .map(template => {
-        const matchingTiles = Object.keys(template.chunked).filter(tile =>
+      .map((template) => {
+        const matchingTiles = Object.keys(template.chunked).filter((tile) =>
           tile.startsWith(tileCoords)
         );
 
-        if (matchingTiles.length === 0) {return null;} // Return null when nothing is found
+        if (matchingTiles.length === 0) {
+          return null;
+        } // Return null when nothing is found
 
         // Retrieves the blobs of the templates for this tile
-        const matchingTileBlobs = matchingTiles.map(tile => {
+        const matchingTileBlobs = matchingTiles.map((tile) => {
+          const coords = tile.split(","); // [x, y, x, y] Tile/pixel coordinates
 
-          const coords = tile.split(','); // [x, y, x, y] Tile/pixel coordinates
-          
           return {
             bitmap: template.chunked[tile],
             tileCoords: [coords[0], coords[1]],
-            pixelCoords: [coords[2], coords[3]]
-          }
+            pixelCoords: [coords[2], coords[3]],
+          };
         });
 
         return matchingTileBlobs?.[0];
       })
-    .filter(Boolean);
+      .filter(Boolean);
 
     console.log(templatesToDraw);
 
@@ -281,11 +312,11 @@ export default class TemplateManager {
     let paintedCount = 0;
     let wrongCount = 0;
     let requiredCount = 0;
-    
+
     const tileBitmap = await createImageBitmap(tileBlob);
 
     const canvas = new OffscreenCanvas(drawSize, drawSize);
-    const context = canvas.getContext('2d');
+    const context = canvas.getContext("2d");
 
     context.imageSmoothingEnabled = false; // Nearest neighbor
 
@@ -314,11 +345,12 @@ export default class TemplateManager {
       // honoring color enable/disable from the active template's palette
       if (tilePixels) {
         try {
-          
           const tempWidth = template.bitmap.width;
           const tempHeight = template.bitmap.height;
           const tempCanvas = new OffscreenCanvas(tempWidth, tempHeight);
-          const tempContext = tempCanvas.getContext('2d', { willReadFrequently: true });
+          const tempContext = tempCanvas.getContext("2d", {
+            willReadFrequently: true,
+          });
           tempContext.imageSmoothingEnabled = false;
           tempContext.clearRect(0, 0, tempWidth, tempHeight);
           tempContext.drawImage(template.bitmap, 0, 0);
@@ -336,13 +368,17 @@ export default class TemplateManager {
 
               // Only evaluate the center pixel of each shread block
               // Skip if not the center pixel of the shread block
-              if ((x % this.drawMult) !== 1 || (y % this.drawMult) !== 1) { continue; }
+              if (x % this.drawMult !== 1 || y % this.drawMult !== 1) {
+                continue;
+              }
 
               const gx = x + offsetX;
               const gy = y + offsetY;
 
               // IF the pixel is out of bounds of the template, OR if the pixel is outside of the tile, then skip the pixel
-              if (gx < 0 || gy < 0 || gx >= drawSize || gy >= drawSize) { continue; }
+              if (gx < 0 || gy < 0 || gx >= drawSize || gy >= drawSize) {
+                continue;
+              }
 
               const templatePixelCenter = (y * tempWidth + x) * 4; // Shread block center pixel
               const templatePixelCenterRed = tData[templatePixelCenter]; // Shread block's center pixel's RED value
@@ -350,7 +386,7 @@ export default class TemplateManager {
               const templatePixelCenterBlue = tData[templatePixelCenter + 2]; // Shread block's center pixel's BLUE value
               const templatePixelCenterAlpha = tData[templatePixelCenter + 3]; // Shread block's center pixel's ALPHA value
 
-              // Possibly needs to be removed 
+              // Possibly needs to be removed
               // Handle template transparent pixel (alpha < 64): wrong if board has any site palette color here
               // If the alpha of the center pixel is less than 64...
               if (templatePixelCenterAlpha < 64) {
@@ -362,10 +398,16 @@ export default class TemplateManager {
                   const pb = tilePixels[tileIdx + 2];
                   const pa = tilePixels[tileIdx + 3];
 
-                  const key = activeTemplate.allowedColorsSet.has(`${pr},${pg},${pb}`) ? `${pr},${pg},${pb}` : 'other';
+                  const key = activeTemplate.allowedColorsSet.has(
+                    `${pr},${pg},${pb}`
+                  )
+                    ? `${pr},${pg},${pb}`
+                    : "other";
 
-                  const isSiteColor = activeTemplate?.allowedColorsSet ? activeTemplate.allowedColorsSet.has(key) : false;
-                  
+                  const isSiteColor = activeTemplate?.allowedColorsSet
+                    ? activeTemplate.allowedColorsSet.has(key)
+                    : false;
+
                   // IF the alpha of the center pixel that is placed on the canvas is greater than or equal to 64, AND the pixel is a Wplace palette color, then it is incorrect.
                   if (pa >= 64 && isSiteColor) {
                     wrongCount++;
@@ -400,9 +442,12 @@ export default class TemplateManager {
               // IF the alpha of the pixel is less than 64...
               if (realPixelCenterAlpha < 64) {
                 // Unpainted -> neither painted nor wrong
-
                 // ELSE IF the pixel matches the template center pixel color
-              } else if (realPixelRed === templatePixelCenterRed && realPixelCenterGreen === templatePixelCenterGreen && realPixelCenterBlue === templatePixelCenterBlue) {
+              } else if (
+                realPixelRed === templatePixelCenterRed &&
+                realPixelCenterGreen === templatePixelCenterGreen &&
+                realPixelCenterBlue === templatePixelCenterBlue
+              ) {
                 paintedCount++; // ...the pixel is painted correctly
               } else {
                 wrongCount++; // ...the pixel is NOT painted correctly
@@ -410,30 +455,40 @@ export default class TemplateManager {
             }
           }
         } catch (exception) {
-          console.warn('Failed to compute per-tile painted/wrong stats:', exception);
+          console.warn(
+            "Failed to compute per-tile painted/wrong stats:",
+            exception
+          );
         }
       }
 
       // Draw the template overlay for visual guidance, honoring color filter
       try {
-
         const activeTemplate = this.templatesArray?.[0]; // Get the first template
         const palette = activeTemplate?.colorPalette || {}; // Obtain the color palette of the template
-        const hasDisabled = Object.values(palette).some(v => v?.enabled === false); // Check if any color is disabled
+        const hasDisabled = Object.values(palette).some(
+          (v) => v?.enabled === false
+        ); // Check if any color is disabled
 
         // If none of the template colors are disabled, then draw the image normally
         if (!hasDisabled) {
-          context.drawImage(template.bitmap, Number(template.pixelCoords[0]) * this.drawMult, Number(template.pixelCoords[1]) * this.drawMult);
+          context.drawImage(
+            template.bitmap,
+            Number(template.pixelCoords[0]) * this.drawMult,
+            Number(template.pixelCoords[1]) * this.drawMult
+          );
         } else {
           // ELSE we need to apply the color filter
 
-          console.log('Applying color filter...');
+          console.log("Applying color filter...");
 
           const tempW = template.bitmap.width;
           const tempH = template.bitmap.height;
 
           const filterCanvas = new OffscreenCanvas(tempW, tempH);
-          const filterCtx = filterCanvas.getContext('2d', { willReadFrequently: true });
+          const filterCtx = filterCanvas.getContext("2d", {
+            willReadFrequently: true,
+          });
           filterCtx.imageSmoothingEnabled = false; // Nearest neighbor
           filterCtx.clearRect(0, 0, tempW, tempH);
           filterCtx.drawImage(template.bitmap, 0, 0);
@@ -444,9 +499,10 @@ export default class TemplateManager {
           // For every pixel...
           for (let y = 0; y < tempH; y++) {
             for (let x = 0; x < tempW; x++) {
-
               // If this pixel is NOT the center pixel, then skip the pixel
-              if ((x % this.drawMult) !== 1 || (y % this.drawMult) !== 1) { continue; }
+              if (x % this.drawMult !== 1 || y % this.drawMult !== 1) {
+                continue;
+              }
 
               const idx = (y * tempW + x) * 4;
               const r = data[idx];
@@ -454,12 +510,18 @@ export default class TemplateManager {
               const b = data[idx + 2];
               const a = data[idx + 3];
 
-              if (a < 1) { continue; }
+              if (a < 1) {
+                continue;
+              }
 
-              let key = activeTemplate.allowedColorsSet.has(`${r},${g},${b}`) ? `${r},${g},${b}` : 'other';
+              let key = activeTemplate.allowedColorsSet.has(`${r},${g},${b}`)
+                ? `${r},${g},${b}`
+                : "other";
 
               // Hide if color is not in allowed palette or explicitly disabled
-              const inWplacePalette = activeTemplate?.allowedColorsSet ? activeTemplate.allowedColorsSet.has(key) : true;
+              const inWplacePalette = activeTemplate?.allowedColorsSet
+                ? activeTemplate.allowedColorsSet.has(key)
+                : true;
 
               // if (inWplacePalette) {
               //   key = 'other'; // Map all non-palette colors to "other"
@@ -475,15 +537,22 @@ export default class TemplateManager {
 
           // Draws the template with somes colors disabled
           filterCtx.putImageData(img, 0, 0);
-          context.drawImage(filterCanvas, Number(template.pixelCoords[0]) * this.drawMult, Number(template.pixelCoords[1]) * this.drawMult);
+          context.drawImage(
+            filterCanvas,
+            Number(template.pixelCoords[0]) * this.drawMult,
+            Number(template.pixelCoords[1]) * this.drawMult
+          );
         }
       } catch (exception) {
-
         // If filtering fails, we can log the error or handle it accordingly
-        console.warn('Failed to apply color filter:', exception);
+        console.warn("Failed to apply color filter:", exception);
 
         // Fallback to drawing raw bitmap if filtering fails
-        context.drawImage(template.bitmap, Number(template.pixelCoords[0]) * this.drawMult, Number(template.pixelCoords[1]) * this.drawMult);
+        context.drawImage(
+          template.bitmap,
+          Number(template.pixelCoords[0]) * this.drawMult,
+          Number(template.pixelCoords[1]) * this.drawMult
+        );
       }
     }
 
@@ -508,35 +577,43 @@ export default class TemplateManager {
 
       // Determine total required across all templates
       // Prefer precomputed per-template required counts; fall back to sum of processed tiles
-      const totalRequiredTemplates = this.templatesArray.reduce((sum, t) =>
-        sum + (t.requiredPixelCount || t.pixelCount || 0), 0);
-      const totalRequired = totalRequiredTemplates > 0 ? totalRequiredTemplates : aggRequiredTiles;
+      const totalRequiredTemplates = this.templatesArray.reduce(
+        (sum, t) => sum + (t.requiredPixelCount || t.pixelCount || 0),
+        0
+      );
+      const totalRequired =
+        totalRequiredTemplates > 0 ? totalRequiredTemplates : aggRequiredTiles;
 
       // Turns numbers into formatted number strings. E.g., 1234 -> 1,234 OR 1.234 based on location of user
       const paintedStr = new Intl.NumberFormat().format(aggPainted);
       const requiredStr = new Intl.NumberFormat().format(totalRequired);
-      const wrongStr = new Intl.NumberFormat().format(totalRequired - aggPainted); // Used to be aggWrong, but that is bugged
+      const wrongStr = new Intl.NumberFormat().format(
+        totalRequired - aggPainted
+      ); // Used to be aggWrong, but that is bugged
 
       this.overlay.handleDisplayStatus(
-        `Displaying ${templateCount} template${templateCount == 1 ? '' : 's'}.\nPainted ${paintedStr} / ${requiredStr} • Wrong ${wrongStr}`
+        `Displaying ${templateCount} template${
+          templateCount == 1 ? "" : "s"
+        }.\nPainted ${paintedStr} / ${requiredStr} • Wrong ${wrongStr}`
       );
     } else {
-      this.overlay.handleDisplayStatus(`Displaying ${templateCount} templates.`);
+      this.overlay.handleDisplayStatus(
+        `Displaying ${templateCount} templates.`
+      );
     }
 
-    return await canvas.convertToBlob({ type: 'image/png' });
+    return await canvas.convertToBlob({ type: "image/png" });
   }
 
   /** Imports the JSON object, and appends it to any JSON object already loaded
    * @param {string} json - The JSON string to parse
    */
   importJSON(json) {
-
     console.log(`Importing JSON...`);
     console.log(json);
 
     // If the passed in JSON is a Blue Marble template object...
-    if (json?.whoami == 'BlueMarble') {
+    if (json?.whoami == "BlueMarble") {
       this.#parseBlueMarble(json); // ...parse the template object as Blue Marble
     }
   }
@@ -546,7 +623,6 @@ export default class TemplateManager {
    * @since 0.72.13
    */
   async #parseBlueMarble(json) {
-
     console.log(`Parsing BlueMarble...`);
 
     const templates = json.templates;
@@ -554,19 +630,16 @@ export default class TemplateManager {
     console.log(`BlueMarble length: ${Object.keys(templates).length}`);
 
     if (Object.keys(templates).length > 0) {
-
       for (const template in templates) {
-
         const templateKey = template;
         const templateValue = templates[template];
         console.log(templateKey);
 
         if (templates.hasOwnProperty(template)) {
-
-          const templateKeyArray = templateKey.split(' '); // E.g., "0 $Z" -> ["0", "$Z"]
+          const templateKeyArray = templateKey.split(" "); // E.g., "0 $Z" -> ["0", "$Z"]
           const sortID = Number(templateKeyArray?.[0]); // Sort ID of the template
-          const authorID = templateKeyArray?.[1] || '0'; // User ID of the person who exported the template
-          const displayName = templateValue.name || `Template ${sortID || ''}`; // Display name of the template
+          const authorID = templateKeyArray?.[1] || "0"; // User ID of the person who exported the template
+          const displayName = templateValue.name || `Template ${sortID || ""}`; // Display name of the template
           //const coords = templateValue?.coords?.split(',').map(Number); // "1,2,3,4" -> [1, 2, 3, 4]
           const tilesbase64 = templateValue.tiles;
           const templateTiles = {}; // Stores the template bitmap tiles for each tile.
@@ -579,8 +652,10 @@ export default class TemplateManager {
               const encodedTemplateBase64 = tilesbase64[tile];
               const templateUint8Array = base64ToUint8(encodedTemplateBase64); // Base 64 -> Uint8Array
 
-              const templateBlob = new Blob([templateUint8Array], { type: "image/png" }); // Uint8Array -> Blob
-              const templateBitmap = await createImageBitmap(templateBlob) // Blob -> Bitmap
+              const templateBlob = new Blob([templateUint8Array], {
+                type: "image/png",
+              }); // Uint8Array -> Blob
+              const templateBitmap = await createImageBitmap(templateBlob); // Blob -> Bitmap
               templateTiles[tile] = templateBitmap;
 
               // Count required pixels in this bitmap (center pixels with alpha >= 64 and not #deface)
@@ -588,7 +663,7 @@ export default class TemplateManager {
                 const w = templateBitmap.width;
                 const h = templateBitmap.height;
                 const c = new OffscreenCanvas(w, h);
-                const cx = c.getContext('2d', { willReadFrequently: true });
+                const cx = c.getContext("2d", { willReadFrequently: true });
                 cx.imageSmoothingEnabled = false;
                 cx.clearRect(0, 0, w, h);
                 cx.drawImage(templateBitmap, 0, 0);
@@ -596,21 +671,35 @@ export default class TemplateManager {
                 for (let y = 0; y < h; y++) {
                   for (let x = 0; x < w; x++) {
                     // Only count center pixels of 3x blocks
-                    if ((x % this.drawMult) !== 1 || (y % this.drawMult) !== 1) { continue; }
+                    if (x % this.drawMult !== 1 || y % this.drawMult !== 1) {
+                      continue;
+                    }
                     const idx = (y * w + x) * 4;
                     const r = data[idx];
                     const g = data[idx + 1];
                     const b = data[idx + 2];
                     const a = data[idx + 3];
-                    if (a < 64) { continue; }
-                    if (r === 222 && g === 250 && b === 206) { continue; }
+                    if (a < 64) {
+                      continue;
+                    }
+                    if (r === 222 && g === 250 && b === 206) {
+                      continue;
+                    }
                     requiredPixelCount++;
-                    const key = activeTemplate.allowedColorsSet.has(`${r},${g},${b}`) ? `${r},${g},${b}` : 'other';
+                    const key = Object.hasOwn(
+                      templates[templateKey].palette,
+                      `${r},${g},${b}`
+                    )
+                      ? `${r},${g},${b}`
+                      : "other";
                     paletteMap.set(key, (paletteMap.get(key) || 0) + 1);
                   }
                 }
               } catch (e) {
-                console.warn('Failed to count required pixels for imported tile', e);
+                console.warn(
+                  "Failed to count required pixels for imported tile",
+                  e
+                );
               }
             }
           }
@@ -619,24 +708,33 @@ export default class TemplateManager {
           const template = new Template({
             displayName: displayName,
             sortID: sortID || this.templatesArray?.length || 0,
-            authorID: authorID || '',
+            authorID: authorID || "",
             //coords: coords
           });
           template.chunked = templateTiles;
           template.requiredPixelCount = requiredPixelCount;
           // Construct colorPalette from paletteMap
           const paletteObj = {};
-          for (const [key, count] of paletteMap.entries()) { paletteObj[key] = { count, enabled: true }; }
+          for (const [key, count] of paletteMap.entries()) {
+            paletteObj[key] = { count, enabled: true };
+          }
           template.colorPalette = paletteObj;
           // Populate tilePrefixes for fast-scoping
-          try { Object.keys(templateTiles).forEach(k => { template.tilePrefixes?.add(k.split(',').slice(0,2).join(',')); }); } catch (_) {}
+          try {
+            Object.keys(templateTiles).forEach((k) => {
+              template.tilePrefixes?.add(k.split(",").slice(0, 2).join(","));
+            });
+          } catch (_) {}
           // Merge persisted palette (enabled/disabled) if present
           try {
             const persisted = templates?.[templateKey]?.palette;
             if (persisted) {
               for (const [rgb, meta] of Object.entries(persisted)) {
                 if (!template.colorPalette[rgb]) {
-                  template.colorPalette[rgb] = { count: meta?.count || 0, enabled: !!meta?.enabled };
+                  template.colorPalette[rgb] = {
+                    count: meta?.count || 0,
+                    enabled: !!meta?.enabled,
+                  };
                 } else {
                   template.colorPalette[rgb].enabled = !!meta?.enabled;
                 }
@@ -652,18 +750,23 @@ export default class TemplateManager {
       }
       // After importing templates from storage, reveal color UI and request palette list build
       try {
-        const colorUI = document.querySelector('#bm-contain-colorfilter');
-        if (colorUI) { colorUI.style.display = ''; }
-        window.postMessage({ source: 'blue-marble', bmEvent: 'bm-rebuild-color-list' }, '*');
-      } catch (_) { /* no-op */ }
+        const colorUI = document.querySelector("#bm-contain-colorfilter");
+        if (colorUI) {
+          colorUI.style.display = "";
+        }
+        window.postMessage(
+          { source: "blue-marble", bmEvent: "bm-rebuild-color-list" },
+          "*"
+        );
+      } catch (_) {
+        /* no-op */
+      }
     }
   }
 
   /** Parses the OSU! Place JSON object
    */
-  #parseOSU() {
-
-  }
+  #parseOSU() {}
 
   /** Sets the `templatesShouldBeDrawn` boolean to a value.
    * @param {boolean} value - The value to set the boolean to

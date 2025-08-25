@@ -22,9 +22,8 @@
  *     <hr>
  *   </div>
  * </body>
-*/
+ */
 export default class Overlay {
-
   /** Constructor for the Overlay class.
    * @param {string} name - The name of the userscript
    * @param {string} version - The version of the userscript
@@ -36,8 +35,8 @@ export default class Overlay {
     this.version = version; // Version of userscript
 
     this.apiManager = null; // The API manager instance. Later populated when setApiManager is called
-    
-    this.outputStatusId = 'bm-output-status'; // ID for status element
+
+    this.outputStatusId = "bm-output-status"; // ID for status element
 
     this.overlay = null; // The overlay root DOM HTMLElement
     this.currentParent = null; // The current parent HTMLElement in the overlay
@@ -48,7 +47,9 @@ export default class Overlay {
    * @param {apiManager} apiManager - The apiManager class instance
    * @since 0.41.4
    */
-  setApiManager(apiManager) {this.apiManager = apiManager;}
+  setApiManager(apiManager) {
+    this.apiManager = apiManager;
+  }
 
   /** Creates an element.
    * For **internal use** of the {@link Overlay} class.
@@ -57,8 +58,7 @@ export default class Overlay {
    * @returns {HTMLElement} HTML Element
    * @since 0.43.2
    */
-  #createElement(tag, properties = {}, additionalProperties={}) {
-
+  #createElement(tag, properties = {}, additionalProperties = {}) {
     const element = document.createElement(tag); // Creates the element
 
     // If this is the first element made...
@@ -80,7 +80,7 @@ export default class Overlay {
     for (const [property, value] of Object.entries(additionalProperties)) {
       element[property] = value;
     }
-    
+
     return element;
   }
 
@@ -143,10 +143,9 @@ export default class Overlay {
    * </body>
    */
   addDiv(additionalProperties = {}, callback = () => {}) {
-
     const properties = {}; // Shared <div> DOM properties
 
-    const div = this.#createElement('div', properties, additionalProperties); // Creates the <div> element
+    const div = this.#createElement("div", properties, additionalProperties); // Creates the <div> element
     callback(this, div); // Runs any script passed in through the callback
     return this;
   }
@@ -168,10 +167,9 @@ export default class Overlay {
    * </body>
    */
   addP(additionalProperties = {}, callback = () => {}) {
-
     const properties = {}; // Shared <p> DOM properties
 
-    const p = this.#createElement('p', properties, additionalProperties); // Creates the <p> element
+    const p = this.#createElement("p", properties, additionalProperties); // Creates the <p> element
     callback(this, p); // Runs any script passed in through the callback
     return this;
   }
@@ -193,10 +191,13 @@ export default class Overlay {
    * </body>
    */
   addSmall(additionalProperties = {}, callback = () => {}) {
-
     const properties = {}; // Shared <small> DOM properties
 
-    const small = this.#createElement('small', properties, additionalProperties); // Creates the <small> element
+    const small = this.#createElement(
+      "small",
+      properties,
+      additionalProperties
+    ); // Creates the <small> element
     callback(this, small); // Runs any script passed in through the callback
     return this;
   }
@@ -218,10 +219,9 @@ export default class Overlay {
    * </body>
    */
   addImg(additionalProperties = {}, callback = () => {}) {
-
     const properties = {}; // Shared <img> DOM properties
 
-    const img = this.#createElement('img', properties, additionalProperties); // Creates the <img> element
+    const img = this.#createElement("img", properties, additionalProperties); // Creates the <img> element
     callback(this, img); // Runs any script passed in through the callback
     return this;
   }
@@ -244,10 +244,13 @@ export default class Overlay {
    * </body>
    */
   addHeader(level, additionalProperties = {}, callback = () => {}) {
-
     const properties = {}; // Shared header DOM properties
 
-    const header = this.#createElement('h' + level, properties, additionalProperties); // Creates the header element
+    const header = this.#createElement(
+      "h" + level,
+      properties,
+      additionalProperties
+    ); // Creates the header element
     callback(this, header); // Runs any script passed in through the callback
     return this;
   }
@@ -269,10 +272,9 @@ export default class Overlay {
    * </body>
    */
   addHr(additionalProperties = {}, callback = () => {}) {
-
     const properties = {}; // Shared <hr> DOM properties
 
-    const hr = this.#createElement('hr', properties, additionalProperties); // Creates the <hr> element
+    const hr = this.#createElement("hr", properties, additionalProperties); // Creates the <hr> element
     callback(this, hr); // Runs any script passed in through the callback
     return this;
   }
@@ -294,10 +296,9 @@ export default class Overlay {
    * </body>
    */
   addBr(additionalProperties = {}, callback = () => {}) {
-
     const properties = {}; // Shared <br> DOM properties
 
-    const br = this.#createElement('br', properties, additionalProperties); // Creates the <br> element
+    const br = this.#createElement("br", properties, additionalProperties); // Creates the <br> element
     callback(this, br); // Runs any script passed in through the callback
     return this;
   }
@@ -322,18 +323,23 @@ export default class Overlay {
    * </body>
    */
   addCheckbox(additionalProperties = {}, callback = () => {}) {
+    const properties = { type: "checkbox" }; // Shared checkbox DOM properties
 
-    const properties = {'type': 'checkbox'}; // Shared checkbox DOM properties
-
-    const label = this.#createElement('label', {'textContent': additionalProperties['textContent'] ?? ''}); // Creates the label element
-    delete additionalProperties['textContent']; // Deletes 'textContent' DOM property before adding the properties to the checkbox
-    const checkbox = this.#createElement('input', properties, additionalProperties); // Creates the checkbox element
+    const label = this.#createElement("label", {
+      textContent: additionalProperties["textContent"] ?? "",
+    }); // Creates the label element
+    delete additionalProperties["textContent"]; // Deletes 'textContent' DOM property before adding the properties to the checkbox
+    const checkbox = this.#createElement(
+      "input",
+      properties,
+      additionalProperties
+    ); // Creates the checkbox element
     label.insertBefore(checkbox, label.firstChild); // Makes the checkbox the first child of the label (before the text content)
     this.buildElement(); // Signifies that we are done adding children to the checkbox
     callback(this, label, checkbox); // Runs any script passed in through the callback
     return this;
   }
-  
+
   /** Adds a `button` to the overlay.
    * This `button` element will have properties shared between all `button` elements in the overlay.
    * You can override the shared properties by using a callback.
@@ -351,10 +357,13 @@ export default class Overlay {
    * </body>
    */
   addButton(additionalProperties = {}, callback = () => {}) {
-
     const properties = {}; // Shared <button> DOM properties
 
-    const button = this.#createElement('button', properties, additionalProperties); // Creates the <button> element
+    const button = this.#createElement(
+      "button",
+      properties,
+      additionalProperties
+    ); // Creates the <button> element
     callback(this, button); // Runs any script passed in through the callback
     return this;
   }
@@ -385,23 +394,29 @@ export default class Overlay {
    * </body>
    */
   addButtonHelp(additionalProperties = {}, callback = () => {}) {
-
-    const tooltip = additionalProperties['title'] ?? additionalProperties['textContent'] ?? 'Help: No info'; // Retrieves the tooltip
+    const tooltip =
+      additionalProperties["title"] ??
+      additionalProperties["textContent"] ??
+      "Help: No info"; // Retrieves the tooltip
 
     // Makes sure the tooltip is stored in the title property
-    delete additionalProperties['textContent'];
-    additionalProperties['title'] = `Help: ${tooltip}`;
+    delete additionalProperties["textContent"];
+    additionalProperties["title"] = `Help: ${tooltip}`;
 
     // Shared help button DOM properties
     const properties = {
-      'textContent': '?',
-      'className': 'bm-help',
-      'onclick': () => {
+      textContent: "?",
+      className: "bm-help",
+      onclick: () => {
         this.updateInnerHTML(this.outputStatusId, tooltip);
-      }
+      },
     };
 
-    const help = this.#createElement('button', properties, additionalProperties); // Creates the <button> element
+    const help = this.#createElement(
+      "button",
+      properties,
+      additionalProperties
+    ); // Creates the <button> element
     callback(this, help); // Runs any script passed in through the callback
     return this;
   }
@@ -423,10 +438,13 @@ export default class Overlay {
    * </body>
    */
   addInput(additionalProperties = {}, callback = () => {}) {
-
     const properties = {}; // Shared <input> DOM properties
 
-    const input = this.#createElement('input', properties, additionalProperties); // Creates the <input> element
+    const input = this.#createElement(
+      "input",
+      properties,
+      additionalProperties
+    ); // Creates the <input> element
     callback(this, input); // Runs any script passed in through the callback
     return this;
   }
@@ -452,32 +470,36 @@ export default class Overlay {
    * </body>
    */
   addInputFile(additionalProperties = {}, callback = () => {}) {
-    
     const properties = {
-      'type': 'file', 
-      'style': 'display: none !important; visibility: hidden !important; position: absolute !important; left: -9999px !important; width: 0 !important; height: 0 !important; opacity: 0 !important;'
+      type: "file",
+      style:
+        "display: none !important; visibility: hidden !important; position: absolute !important; left: -9999px !important; width: 0 !important; height: 0 !important; opacity: 0 !important;",
     }; // Complete file input hiding to prevent native browser text interference
-    const text = additionalProperties['textContent'] ?? ''; // Retrieves the text content
+    const text = additionalProperties["textContent"] ?? ""; // Retrieves the text content
 
-    delete additionalProperties['textContent']; // Deletes the text content before applying the additional properties to the file input
+    delete additionalProperties["textContent"]; // Deletes the text content before applying the additional properties to the file input
 
-    const container = this.#createElement('div'); // Container for file input
-    const input = this.#createElement('input', properties, additionalProperties); // Creates the file input
+    const container = this.#createElement("div"); // Container for file input
+    const input = this.#createElement(
+      "input",
+      properties,
+      additionalProperties
+    ); // Creates the file input
     this.buildElement(); // Signifies that we are done adding children to the file input
-    const button = this.#createElement('button', {'textContent': text});
+    const button = this.#createElement("button", { textContent: text });
     this.buildElement(); // Signifies that we are done adding children to the button
     this.buildElement(); // Signifies that we are done adding children to the container
 
     // Prevent file input from being accessible or visible by screen-readers and tabbing
-    input.setAttribute('tabindex', '-1');
-    input.setAttribute('aria-hidden', 'true');
-    
-    button.addEventListener('click', () => {
+    input.setAttribute("tabindex", "-1");
+    input.setAttribute("aria-hidden", "true");
+
+    button.addEventListener("click", () => {
       input.click(); // Clicks the file input
     });
 
     // Update button text when file is selected
-    input.addEventListener('change', () => {
+    input.addEventListener("change", () => {
       button.style.maxWidth = `${button.offsetWidth}px`;
       if (input.files.length > 0) {
         button.textContent = input.files[0].name;
@@ -507,10 +529,13 @@ export default class Overlay {
    * </body>
    */
   addTextarea(additionalProperties = {}, callback = () => {}) {
-
     const properties = {}; // Shared <textarea> DOM properties
 
-    const textarea = this.#createElement('textarea', properties, additionalProperties); // Creates the <textarea> element
+    const textarea = this.#createElement(
+      "textarea",
+      properties,
+      additionalProperties
+    ); // Creates the <textarea> element
     callback(this, textarea); // Runs any script passed in through the callback
     return this;
   }
@@ -523,17 +548,18 @@ export default class Overlay {
    * @param {boolean} [doSafe] - (Optional) Should `textContent` be used instead of `innerHTML` to avoid XSS? False by default
    * @since 0.24.2
    */
-  updateInnerHTML(id, html, doSafe=false) {
+  updateInnerHTML(id, html, doSafe = false) {
+    const element = document.getElementById(id.replace(/^#/, "")); // Retrieve the element from the 'id' (removed the '#')
 
-    const element = document.getElementById(id.replace(/^#/, '')); // Retrieve the element from the 'id' (removed the '#')
-    
-    if (!element) {return;} // Kills itself if the element does not exist
+    if (!element) {
+      return;
+    } // Kills itself if the element does not exist
 
     // Input elements don't have innerHTML, so we modify the value attribute instead
     if (element instanceof HTMLInputElement) {
       element.value = html;
       return;
-    } 
+    }
 
     if (doSafe) {
       element.textContent = html; // Populate element with plain-text HTML/text
@@ -547,10 +573,11 @@ export default class Overlay {
    * @param {string} moveMe - The ID of the element to be moved
    * @param {string} iMoveThings - The ID of the drag handle element
    * @since 0.8.2
-  */
+   */
   handleDrag(moveMe, iMoveThings) {
     let isDragging = false;
-    let offsetX, offsetY = 0;
+    let offsetX,
+      offsetY = 0;
     let animationFrame = null;
     let currentX = 0;
     let currentY = 0;
@@ -558,12 +585,18 @@ export default class Overlay {
     let targetY = 0;
 
     // Retrieves the elements (allows either '#id' or 'id' to be passed in)
-    moveMe = document.querySelector(moveMe?.[0] == '#' ? moveMe : '#' + moveMe);
-    iMoveThings = document.querySelector(iMoveThings?.[0] == '#' ? iMoveThings : '#' + iMoveThings);
+    moveMe = document.querySelector(moveMe?.[0] == "#" ? moveMe : "#" + moveMe);
+    iMoveThings = document.querySelector(
+      iMoveThings?.[0] == "#" ? iMoveThings : "#" + iMoveThings
+    );
 
     // What to do when one of the two elements are not found
     if (!moveMe || !iMoveThings) {
-      this.handleDisplayError(`Can not drag! ${!moveMe ? 'moveMe' : ''} ${!moveMe && !iMoveThings ? 'and ' : ''}${!iMoveThings ? 'iMoveThings ' : ''}was not found!`);
+      this.handleDisplayError(
+        `Can not drag! ${!moveMe ? "moveMe" : ""} ${
+          !moveMe && !iMoveThings ? "and " : ""
+        }${!iMoveThings ? "iMoveThings " : ""}was not found!`
+      );
       return; // Kills itself
     }
 
@@ -573,36 +606,36 @@ export default class Overlay {
         // Only update DOM if position changed significantly (reduce repaints)
         const deltaX = Math.abs(currentX - targetX);
         const deltaY = Math.abs(currentY - targetY);
-        
+
         if (deltaX > 0.5 || deltaY > 0.5) {
           currentX = targetX;
           currentY = targetY;
-          
+
           // Use CSS transform for GPU acceleration instead of left/top
           moveMe.style.transform = `translate(${currentX}px, ${currentY}px)`;
-          moveMe.style.left = '0px';
-          moveMe.style.top = '0px';
-          moveMe.style.right = '';
+          moveMe.style.left = "0px";
+          moveMe.style.top = "0px";
+          moveMe.style.right = "";
         }
-        
+
         animationFrame = requestAnimationFrame(updatePosition);
       }
     };
 
     // Cache initial position to avoid expensive getBoundingClientRect calls during drag
     let initialRect = null;
-    
+
     const startDrag = (clientX, clientY) => {
       isDragging = true;
       initialRect = moveMe.getBoundingClientRect();
       offsetX = clientX - initialRect.left;
       offsetY = clientY - initialRect.top;
-      
+
       // Get current position from transform or use element position
       const computedStyle = window.getComputedStyle(moveMe);
       const transform = computedStyle.transform;
-      
-      if (transform && transform !== 'none') {
+
+      if (transform && transform !== "none") {
         const matrix = new DOMMatrix(transform);
         currentX = matrix.m41;
         currentY = matrix.m42;
@@ -610,13 +643,13 @@ export default class Overlay {
         currentX = initialRect.left;
         currentY = initialRect.top;
       }
-      
+
       targetX = currentX;
       targetY = currentY;
-      
-      document.body.style.userSelect = 'none';
-      iMoveThings.classList.add('dragging');
-      
+
+      document.body.style.userSelect = "none";
+      iMoveThings.classList.add("dragging");
+
       // Start animation loop
       if (animationFrame) {
         cancelAnimationFrame(animationFrame);
@@ -630,47 +663,63 @@ export default class Overlay {
         cancelAnimationFrame(animationFrame);
         animationFrame = null;
       }
-      document.body.style.userSelect = '';
-      iMoveThings.classList.remove('dragging');
+      document.body.style.userSelect = "";
+      iMoveThings.classList.remove("dragging");
     };
 
     // Mouse down - start dragging
-    iMoveThings.addEventListener('mousedown', function(event) {
+    iMoveThings.addEventListener("mousedown", function (event) {
       event.preventDefault();
       startDrag(event.clientX, event.clientY);
     });
 
     // Touch start - start dragging
-    iMoveThings.addEventListener('touchstart', function(event) {
-      const touch = event?.touches?.[0];
-      if (!touch) {return;}
-      startDrag(touch.clientX, touch.clientY);
-      event.preventDefault();
-    }, { passive: false });
+    iMoveThings.addEventListener(
+      "touchstart",
+      function (event) {
+        const touch = event?.touches?.[0];
+        if (!touch) {
+          return;
+        }
+        startDrag(touch.clientX, touch.clientY);
+        event.preventDefault();
+      },
+      { passive: false }
+    );
 
     // Mouse move - update target position
-    document.addEventListener('mousemove', function(event) {
-      if (isDragging && initialRect) {
-        targetX = event.clientX - offsetX;
-        targetY = event.clientY - offsetY;
-      }
-    }, { passive: true });
+    document.addEventListener(
+      "mousemove",
+      function (event) {
+        if (isDragging && initialRect) {
+          targetX = event.clientX - offsetX;
+          targetY = event.clientY - offsetY;
+        }
+      },
+      { passive: true }
+    );
 
     // Touch move - update target position
-    document.addEventListener('touchmove', function(event) {
-      if (isDragging && initialRect) {
-        const touch = event?.touches?.[0];
-        if (!touch) {return;}
-        targetX = touch.clientX - offsetX;
-        targetY = touch.clientY - offsetY;
-        event.preventDefault();
-      }
-    }, { passive: false });
+    document.addEventListener(
+      "touchmove",
+      function (event) {
+        if (isDragging && initialRect) {
+          const touch = event?.touches?.[0];
+          if (!touch) {
+            return;
+          }
+          targetX = touch.clientX - offsetX;
+          targetY = touch.clientY - offsetY;
+          event.preventDefault();
+        }
+      },
+      { passive: false }
+    );
 
     // End drag events
-    document.addEventListener('mouseup', endDrag);
-    document.addEventListener('touchend', endDrag);
-    document.addEventListener('touchcancel', endDrag);
+    document.addEventListener("mouseup", endDrag);
+    document.addEventListener("touchend", endDrag);
+    document.addEventListener("touchcancel", endDrag);
   }
 
   /** Handles status display.
@@ -682,7 +731,7 @@ export default class Overlay {
   handleDisplayStatus(text) {
     const consoleInfo = console.info; // Creates a copy of the console.info function
     consoleInfo(`${this.name}: ${text}`); // Outputs something like "ScriptName: text" as an info message to the console
-    this.updateInnerHTML(this.outputStatusId, 'Status: ' + text, true); // Update output Status box
+    this.updateInnerHTML(this.outputStatusId, "Status: " + text, true); // Update output Status box
   }
 
   /** Handles error display.
@@ -694,6 +743,6 @@ export default class Overlay {
   handleDisplayError(text) {
     const consoleError = console.error; // Creates a copy of the console.error function
     consoleError(`${this.name}: ${text}`); // Outputs something like "ScriptName: text" as an error message to the console
-    this.updateInnerHTML(this.outputStatusId, 'Error: ' + text, true); // Update output Status box
+    this.updateInnerHTML(this.outputStatusId, "Error: " + text, true); // Update output Status box
   }
 }
